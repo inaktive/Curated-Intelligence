@@ -1,0 +1,81 @@
+<div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" (click)="close()">
+  <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-lg shadow-xl text-slate-300 relative" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="p-5 border-b border-slate-700">
+      <h2 class="text-xl font-bold text-white">{{ contentItem().title }}</h2>
+      <div class="text-sm text-slate-400 mt-1">
+        <span>{{ contentItem().source }}</span> &middot; <span>{{ contentItem().category }}</span> &middot; <span>{{ contentItem().format }}</span>
+      </div>
+    </div>
+    
+    <!-- Body -->
+    <div class="p-5 max-h-[70vh] overflow-y-auto space-y-6">
+        <!-- Summary -->
+        <div>
+            <h3 class="font-semibold text-slate-200 mb-2">Summary</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">{{ contentItem().summary }}</p>
+        </div>
+
+        <!-- Curator's Note -->
+        <div>
+            <h3 class="font-semibold text-slate-200 mb-2">Curator's Note</h3>
+            @if(noteState() === 'idle') {
+                <button (click)="getCuratorNote()" class="flex items-center space-x-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>
+                    <span>Generate with AI</span>
+                </button>
+            }
+            @if(noteState() === 'loading') {
+                <div class="flex items-center space-x-2 text-sm text-slate-400">
+                    <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Generating note...</span>
+                </div>
+            }
+            @if(noteState() === 'loaded') {
+                <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-4">{{ curatorNote() }}</p>
+            }
+            @if(noteState() === 'error') {
+                <p class="text-red-400 text-sm leading-relaxed border-l-2 border-red-500 pl-4">{{ curatorNote() }}</p>
+            }
+        </div>
+
+      <!-- Score Breakdown -->
+      <div>
+        <h3 class="font-semibold text-slate-200 mb-3">Score Breakdown</h3>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div class="flex justify-between"><span>Clarity & Craft</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.clarityAndCraft)">{{ contentItem().scores.clarityAndCraft }}</span></div>
+          <div class="flex justify-between"><span>Originality & Insight</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.originalityAndInsight)">{{ contentItem().scores.originalityAndInsight }}</span></div>
+          <div class="flex justify-between"><span>Evidence & Rigor</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.evidenceAndRigor)">{{ contentItem().scores.evidenceAndRigor }}</span></div>
+          <div class="flex justify-between"><span>Relevance & Timeliness</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.relevanceAndTimeliness)">{{ contentItem().scores.relevanceAndTimeliness }}</span></div>
+          <div class="flex justify-between"><span>Signal-to-Noise Ratio</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.signalToNoise)">{{ contentItem().scores.signalToNoise }}</span></div>
+          <div class="flex justify-between"><span>Value & Applicability</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.valueAndApplicability)">{{ contentItem().scores.valueAndApplicability }}</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer/Actions -->
+    <div class="p-4 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <button (click)="toggleSave()"
+                [class.text-yellow-400]="isSaved()"
+                [class.text-slate-400]="!isSaved()"
+                class="p-2 rounded-md hover:bg-slate-700 transition-colors">
+          <svg class="w-5 h-5" [attr.fill]="isSaved() ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+        </button>
+        <!-- Add share and note buttons later -->
+      </div>
+      <a [href]="contentItem().url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-800">
+        Go to Source
+        <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+      </a>
+    </div>
+
+    <!-- Close button -->
+    <button (click)="close()" class="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors">
+      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,85 @@
+<div class="space-y-8">
+  <!-- Filters and Slider Section -->
+  <div class="bg-slate-800/50 p-4 sm:p-6 rounded-lg border border-slate-700 space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex-1">
+        <label for="quality-slider" class="block text-sm font-medium text-slate-300 mb-2">
+          Quality Threshold: <span class="font-bold text-blue-400">{{ qualityThreshold() }}</span>
+        </label>
+        <input 
+          id="quality-slider" 
+          type="range" 
+          min="0" 
+          max="100" 
+          [value]="qualityThreshold()" 
+          (input)="onSliderChange($event)"
+          class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+      </div>
+      <div class="text-sm text-slate-400 md:w-1/3 md:pl-6">
+        Drag slider to control noise-to-signal ratio. Higher values show only elite, curated insights.
+      </div>
+    </div>
+    
+    <div class="border-t border-slate-700 pt-4 space-y-4">
+      <!-- Category Filters -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-sm font-medium text-slate-400 w-20">Category:</span>
+        @for(category of categories; track category) {
+          <button (click)="selectCategory(category)" 
+                  [class.bg-blue-600]="selectedCategory() === category"
+                  [class.text-white]="selectedCategory() === category"
+                  [class.bg-slate-700]="selectedCategory() !== category"
+                  class="px-3 py-1 text-sm rounded-full transition-colors hover:bg-blue-500">
+            {{ category }}
+          </button>
+        }
+      </div>
+      <!-- Format Filters -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-sm font-medium text-slate-400 w-20">Format:</span>
+        @for(format of formats; track format) {
+          <button (click)="selectFormat(format)" 
+                  [class.bg-blue-600]="selectedFormat() === format"
+                  [class.text-white]="selectedFormat() === format"
+                  [class.bg-slate-700]="selectedFormat() !== format"
+                  class="px-3 py-1 text-sm rounded-full transition-colors hover:bg-blue-500">
+            {{ format }}
+          </button>
+        }
+      </div>
+       <!-- Time Filters -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-sm font-medium text-slate-400 w-20">Time:</span>
+          <button (click)="selectTime('24h')" 
+                  [class.bg-blue-600]="selectedTime() === '24h'"
+                  [class.text-white]="selectedTime() === '24h'"
+                  [class.bg-slate-700]="selectedTime() !== '24h'"
+                  class="px-3 py-1 text-sm rounded-full transition-colors hover:bg-blue-500">
+            24 hours
+          </button>
+          <button (click)="selectTime('7d')" 
+                  [class.bg-blue-600]="selectedTime() === '7d'"
+                  [class.text-white]="selectedTime() === '7d'"
+                  [class.bg-slate-700]="selectedTime() !== '7d'"
+                  class="px-3 py-1 text-sm rounded-full transition-colors hover:bg-blue-500">
+            7 days
+          </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Feed -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    @for (item of filteredContent(); track item.id) {
+      <app-content-card [item]="item" (click)="onItemClicked(item)"></app-content-card>
+    } @empty {
+      <div class="col-span-full text-center py-16 bg-slate-800/50 rounded-lg border border-dashed border-slate-700">
+        <svg class="mx-auto h-12 w-12 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-slate-300">No content found</h3>
+        <p class="mt-1 text-sm text-slate-400">Try adjusting your filters or lowering the quality threshold.</p>
+      </div>
+    }
+  </div>
+</div>
