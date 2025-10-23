@@ -1,81 +1,177 @@
-<div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" (click)="close()">
-  <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-lg shadow-xl text-slate-300 relative" (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="p-5 border-b border-slate-700">
-      <h2 class="text-xl font-bold text-white">{{ contentItem().title }}</h2>
-      <div class="text-sm text-slate-400 mt-1">
-        <span>{{ contentItem().source }}</span> &middot; <span>{{ contentItem().category }}</span> &middot; <span>{{ contentItem().format }}</span>
-      </div>
-    </div>
+<div class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 lg:p-8" (click)="close()">
+  <div class="bg-slate-800 border border-slate-700 rounded-lg shadow-2xl w-full max-w-screen-2xl h-full max-h-[95vh] flex flex-col" (click)="$event.stopPropagation()">
     
-    <!-- Body -->
-    <div class="p-5 max-h-[70vh] overflow-y-auto space-y-6">
-        <!-- Summary -->
-        <div>
-            <h3 class="font-semibold text-slate-200 mb-2">Summary</h3>
-            <p class="text-slate-400 text-sm leading-relaxed">{{ contentItem().summary }}</p>
-        </div>
-
-        <!-- Curator's Note -->
-        <div>
-            <h3 class="font-semibold text-slate-200 mb-2">Curator's Note</h3>
-            @if(noteState() === 'idle') {
-                <button (click)="getCuratorNote()" class="flex items-center space-x-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>
-                    <span>Generate with AI</span>
-                </button>
-            }
-            @if(noteState() === 'loading') {
-                <div class="flex items-center space-x-2 text-sm text-slate-400">
-                    <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Generating note...</span>
-                </div>
-            }
-            @if(noteState() === 'loaded') {
-                <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-4">{{ curatorNote() }}</p>
-            }
-            @if(noteState() === 'error') {
-                <p class="text-red-400 text-sm leading-relaxed border-l-2 border-red-500 pl-4">{{ curatorNote() }}</p>
-            }
-        </div>
-
-      <!-- Score Breakdown -->
-      <div>
-        <h3 class="font-semibold text-slate-200 mb-3">Score Breakdown</h3>
-        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <div class="flex justify-between"><span>Clarity & Craft</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.clarityAndCraft)">{{ contentItem().scores.clarityAndCraft }}</span></div>
-          <div class="flex justify-between"><span>Originality & Insight</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.originalityAndInsight)">{{ contentItem().scores.originalityAndInsight }}</span></div>
-          <div class="flex justify-between"><span>Evidence & Rigor</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.evidenceAndRigor)">{{ contentItem().scores.evidenceAndRigor }}</span></div>
-          <div class="flex justify-between"><span>Relevance & Timeliness</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.relevanceAndTimeliness)">{{ contentItem().scores.relevanceAndTimeliness }}</span></div>
-          <div class="flex justify-between"><span>Signal-to-Noise Ratio</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.signalToNoise)">{{ contentItem().scores.signalToNoise }}</span></div>
-          <div class="flex justify-between"><span>Value & Applicability</span><span class="font-mono" [class]="getScoreColor(contentItem().scores.valueAndApplicability)">{{ contentItem().scores.valueAndApplicability }}</span></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Footer/Actions -->
-    <div class="p-4 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <button (click)="toggleSave()"
-                [class.text-yellow-400]="isSaved()"
-                [class.text-slate-400]="!isSaved()"
-                class="p-2 rounded-md hover:bg-slate-700 transition-colors">
-          <svg class="w-5 h-5" [attr.fill]="isSaved() ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+    <!-- Header Tabs -->
+    <div class="flex-shrink-0 px-6 pt-4">
+      <div class="flex items-center justify-between">
+        <nav class="flex space-x-4" aria-label="Tabs">
+          <button (click)="activeTab.set('executive')"
+                  class="px-3 py-2 font-medium text-sm rounded-t-md border-b-2 transition-colors"
+                  [class.border-blue-500]="activeTab() === 'executive'"
+                  [class.text-white]="activeTab() === 'executive'"
+                  [class.border-transparent]="activeTab() !== 'executive'"
+                  [class.text-slate-400]="activeTab() !== 'executive'"
+                  [class.hover:text-slate-200]="activeTab() !== 'executive'">
+            Executive Summary
+          </button>
+          <button (click)="activeTab.set('lessons')"
+                  class="px-3 py-2 font-medium text-sm rounded-t-md border-b-2 transition-colors"
+                  [class.border-blue-500]="activeTab() === 'lessons'"
+                  [class.text-white]="activeTab() === 'lessons'"
+                  [class.border-transparent]="activeTab() !== 'lessons'"
+                  [class.text-slate-400]="activeTab() !== 'lessons'"
+                  [class.hover:text-slate-200]="activeTab() !== 'lessons'">
+            Lessons for the C-Suites
+          </button>
+        </nav>
+        <button (click)="close()" class="text-slate-400 hover:text-white transition-colors" title="Close">
+          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        <!-- Add share and note buttons later -->
       </div>
-      <a [href]="contentItem().url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-800">
-        Go to Source
-        <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-      </a>
     </div>
 
-    <!-- Close button -->
-    <button (click)="close()" class="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors">
-      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
+    <!-- Main Content -->
+    <div class="flex-grow p-6 overflow-y-auto border-t border-slate-700">
+      @if (aiState() === 'loading' || aiState() === 'idle') {
+        <div class="animate-pulse space-y-8">
+          <div class="h-8 bg-slate-700 rounded w-3/4"></div>
+          <div class="h-4 bg-slate-700 rounded w-1/4"></div>
+          <div class="space-y-4">
+            @for (_ of [1,2,3,4,5]; track _) {
+              <div class="h-5 bg-slate-700 rounded w-full"></div>
+              <div class="h-5 bg-slate-700 rounded w-5/6"></div>
+              <div class="h-5 bg-slate-700 rounded w-1/2 mb-6"></div>
+            }
+          </div>
+        </div>
+      } @else if (aiState() === 'error') {
+        <div class="bg-red-900/20 p-6 rounded-md border border-red-500/50 text-red-300">
+            <h3 class="text-lg font-bold mb-2">AI Analysis Failed</h3>
+            <p>{{ aiError() }}</p>
+            <p class="mt-4 text-sm text-red-400">Please try again later. The AI service may be experiencing high load or the source content may be incompatible.</p>
+        </div>
+      } @else {
+        <!-- Loaded Content -->
+        @if (activeTab() === 'executive' && executiveSummary(); as summary) {
+          <div class="space-y-6">
+            <h1 class="text-3xl font-bold text-white">{{ contentItem().title }}</h1>
+            <p class="text-base text-slate-400">{{ contentItem().publishedDate | date:'longDate' }}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div class="md:col-span-1"><dt class="font-semibold text-slate-300">Accountable Entity</dt><dd class="text-slate-400 mt-1">{{ summary.accountableEntity }}</dd></div>
+                <div class="md:col-span-2"><dt class="font-semibold text-slate-300">Stakeholders</dt>
+                    <dd class="mt-2 flex flex-wrap gap-2">
+                        @for(stakeholder of summary.stakeholders; track stakeholder) {
+                           <span class="px-2.5 py-1 rounded-md text-xs font-medium" [class]="getStakeholderColor(stakeholder)">{{ stakeholder }}</span>
+                        }
+                    </dd>
+                </div>
+            </div>
+            
+            <div class="space-y-4 pt-4 border-t border-slate-700">
+                <div><h3 class="font-semibold text-slate-200 text-lg">Event Summary</h3><p class="text-slate-300 mt-1 leading-relaxed">{{ summary.eventSummary }}</p></div>
+                <div><h3 class="font-semibold text-slate-200 text-lg">Why We Highlight This</h3><p class="text-slate-300 mt-1 leading-relaxed">{{ summary.whyWeHighlightThis }}</p></div>
+                <div><h3 class="font-semibold text-slate-200 text-lg">Event Analysis</h3><p class="text-slate-300 mt-1 leading-relaxed">{{ summary.eventAnalysis }}</p></div>
+            </div>
+          </div>
+        }
+        @if (activeTab() === 'lessons' && lessonsForCSuite(); as lessons) {
+          <div class="space-y-8">
+            <h1 class="text-3xl font-bold text-white leading-tight">{{ lessons.title }}</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6 pt-6">
+              <div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Governance Owners</h3></div>
+              <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <dt class="font-medium text-slate-400">Primary</dt>
+                  <dd class="mt-2 flex flex-wrap gap-2">
+                    @for(owner of lessons.primaryOwners; track owner) { <span class="px-2 py-1 text-xs font-medium rounded" [class]="getTagColor(owner)">{{owner}}</span> }
+                  </dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-400">Supporting</dt>
+                  <dd class="mt-2 flex flex-wrap gap-2">
+                    @for(owner of lessons.supportingOwners; track owner) { <span class="px-2 py-1 text-xs font-medium rounded" [class]="getTagColor(owner)">{{owner}}</span> }
+                  </dd>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-2 pt-6 border-t border-slate-700">
+              <div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">AI Trust Lifecycle</h3></div>
+              <div class="lg:col-span-3 flex flex-wrap gap-2">
+                @for(stage of lessons.lifecycleStages; track stage) { <span class="px-2 py-1 text-xs font-medium rounded" [class]="getTagColor(stage)">{{stage}}</span> }
+              </div>
+            </div>
+
+            <div class="space-y-6 pt-6 border-t border-slate-700">
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8"><div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Event Summary</h3></div><div class="lg:col-span-3 text-slate-300 leading-relaxed"><p>{{ executiveSummary()?.eventSummary }}</p></div></div>
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8"><div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Potential Accountable Entity Impact</h3></div><div class="lg:col-span-3 text-slate-300 leading-relaxed"><p>{{ lessons.accountableEntityImpact }}</p></div></div>
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8"><div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Potential Stakeholders' Assurance Requirements</h3></div><div class="lg:col-span-3 text-slate-300 leading-relaxed"><p>{{ lessons.stakeholderRequirements }}</p></div></div>
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8"><div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Potential Risks Without Assurance Evidence</h3></div><div class="lg:col-span-3 text-slate-300 leading-relaxed"><p>{{ lessons.risksWithoutAssurance }}</p></div></div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-700">
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8">
+                <div class="lg:col-span-1"><h3 class="font-semibold text-slate-300">Verified Assurance Best Practices</h3></div>
+                <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  @for(practice of lessons.bestPractices; track practice.title) {
+                    <div class="bg-slate-900 p-6 rounded-lg border border-slate-700 flex flex-col h-full">
+                      <h4 class="font-medium text-slate-200 text-base">{{ practice.title }}</h4>
+                      <p class="text-slate-400 mt-3 leading-relaxed text-sm flex-grow">{{ practice.description }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex-shrink-0 p-6 bg-slate-900/50 border-t border-slate-700 flex justify-between items-center text-sm">
+      <div class="flex items-center gap-10">
+          <div class="flex items-center gap-3">
+              <svg class="h-7 w-7 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 22.5l-.648-1.938a3.375 3.375 0 00-2.684-2.684L11.25 18l1.938-.648a3.375 3.375 0 002.684-2.684L16.25 13.5l.648 1.938a3.375 3.375 0 002.684 2.684L21.75 18l-1.938.648a3.375 3.375 0 00-2.684 2.684z" /></svg>
+              <div>
+                <span class="text-slate-400 font-medium text-xs block">AI Processing</span>
+                <p class="text-slate-300 font-semibold">Google Gemini</p>
+              </div>
+          </div>
+          <div>
+              <span class="text-slate-400 font-medium text-xs flex items-center gap-1.5 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Advisory Expert Judgement
+              </span>
+              <p><span class="px-2.5 py-1 font-semibold rounded-md text-xs" [class]="getAdvisoryColor(contentItem().advisoryJudgement)">{{ contentItem().advisoryJudgement }}</span></p>
+          </div>
+           <div>
+              <span class="text-slate-400 font-medium text-xs flex items-center gap-1.5 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A11.953 11.953 0 0012 16.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0021 12c0-.778.099 1.533.284-2.253M18 9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                Source URL
+              </span>
+              <p><a [href]="contentItem().url" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+                <span class="truncate max-w-xs">{{ contentItem().url }}</span>
+              </a></p>
+          </div>
+      </div>
+      <div class="flex items-center gap-2 relative">
+          <button (click)="close()" class="px-4 py-2 text-sm font-medium rounded-md text-slate-300 bg-slate-700 hover:bg-slate-600 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+            Home
+          </button>
+          <button (click)="share()" class="px-4 py-2 text-sm font-medium rounded-md text-slate-300 bg-slate-700 hover:bg-slate-600 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+              Share
+          </button>
+          @if (showCopiedTooltip()) {
+            <div class="absolute bottom-full mb-2 right-0 bg-slate-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg transition-opacity duration-300 opacity-100">
+              Copied!
+            </div>
+          }
+      </div>
+    </div>
   </div>
 </div>

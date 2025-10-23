@@ -1,51 +1,37 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ContentItem } from '../../models/content-item.model';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-content-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgOptimizedImage, DatePipe],
   templateUrl: './content-card.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentCardComponent {
   item = input.required<ContentItem>();
+  index = input<number>(0);
 
-  badgeInfo = computed(() => {
-    const score = this.item().scores.final;
-    if (score >= 85) {
-      return { class: 'bg-green-500/20 text-green-400 border-green-500/30', text: 'High Signal' };
-    } else if (score >= 70) {
-      return { class: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', text: 'Mixed' };
-    } else {
-      return { class: 'bg-red-500/20 text-red-400 border-red-500/30', text: 'Low Signal' };
+  advisoryColor = computed(() => {
+    const judgement = this.item().advisoryJudgement;
+    if (judgement === 'Critical - Act') return 'bg-red-600 text-white';
+    if (judgement === 'Important - Monitor') return 'bg-yellow-500 text-black';
+    return 'bg-green-600 text-white';
+  });
+
+  getTagColor(tag: string): string {
+    const lowerTag = tag.toLowerCase();
+    if (lowerTag.includes('ciso') || lowerTag.includes('cro')) {
+      return 'bg-red-500 text-white';
     }
-  });
-
-  categoryClass = computed(() => {
-    const category = this.item().category;
-    switch (category) {
-      case 'Security': return 'text-red-400';
-      case 'Technology': return 'text-blue-400';
-      case 'Humans': return 'text-purple-400';
-      default: return 'text-slate-400';
+    if (lowerTag.includes('caio') || lowerTag.includes('cto')) {
+      return 'bg-orange-500 text-white';
     }
-  });
-
-  timeSince = computed(() => {
-    const date = new Date(this.item().publishedDate);
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
-  });
+     if (lowerTag.includes('board')) {
+      return 'bg-purple-600 text-white';
+    }
+    return 'bg-slate-600 text-white';
+  }
 }

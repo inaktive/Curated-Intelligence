@@ -40,6 +40,9 @@
   </main>
   
   @if (selectedContentItem(); as item) {
-    <app-detailed-view [contentItem]="item" (closeModal)="closeDetails()"></app-detailed-view>
+    <app-detailed-view 
+      [contentItem]="item" 
+      (closeModal)="closeDetails()">
+    </app-detailed-view>
   }
 </div>
